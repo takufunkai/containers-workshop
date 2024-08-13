@@ -1,1 +1,2 @@
+echo Procfile loading
 web: gunicorn app:app
