@@ -15,8 +15,8 @@ quotes = [
     "It is pitch dark. You are likely to be eat by a grue."
 ]
 
-@app.route("/test")
-def hello_world():
+@app.route("/")
+def root():
     quote_index = random.randint(0, len(quotes) - 1)
     image_url = url_for('static', filename='smile.jpg')
     gh_url = "https://github.com/takufunkai/containers-workshop"
@@ -26,5 +26,5 @@ def hello_world():
         image_url=image_url,
         gh_url=gh_url)
 
-if __name__ == '__main__':
-    app.run(threaded=True, port=5000)
+if __name__ == "__main__":
+    app.run(host='127.0.0.1', port=8080, debug=True)
