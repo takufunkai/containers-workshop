@@ -1,0 +1,16 @@
+# Bind mount
+mkdir /opt/tmp/mysql
+
+docker run -d -p 3306:3306 \
+	--mount type=bind,src=/opt/tmp/mysql,dst=/var/lib/mysql \
+	-e MYSQL_ROOT_PASSWORD=abc123 \
+	mysql:8
+
+# Volume mount
+docker volume create db-vol
+
+docker run -d -p 3306:3306 \
+	--mount type=volume,src=db-vol,dst=/var/lib/mysql \
+	-e MYSQL_ROOT_PASSWORD=abc123 \
+	mysql:8
+
