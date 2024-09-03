@@ -1,0 +1,17 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: bggns
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bgg-cm
+  namespace: bggns
+  labels:
+    name: bgg-cm
+data:
+  bggdb_user: root
+  bggdb_host: bggdb-svc.bggns.svc.cluster.local
