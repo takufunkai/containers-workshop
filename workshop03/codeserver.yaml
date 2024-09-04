@@ -1,0 +1,95 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: codeserver-deploy
+  namespace: codeserver
+  labels:
+    app: codeserver
+    name: codeserver-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: codeserver
+      name: codeserver-pod
+  template:
+    metadata:
+      name: codeserver-pod
+      namespace: codeserver
+      labels:
+        name: codeserver-pod
+        app: codeserver
+    spec:
+      # Changes the default user to the specified fsGroup id
+      securityContext:
+        fsGroup: 1000
+      volumes:
+      - name: workspace-vol
+        persistentVolumeClaim:
+          claimName: codeserver-pvc
+      containers:
+      - name: codeserver-container
+        image: linuxserver/code-server:amd64-4.92.2
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: codeserver-port
+          containerPort: 8443
+        volumeMounts:
+        - name: workspace-vol
+          mountPath: /config/workspace
+        resources: 
+          requests:
+            cpu: 200m
+            memory: 256Mi
+        env:
+        - name: PUID
+          value: "1000"
+        - name: PGID
+          value: "1000"
+        envFrom:
+        - configMapRef:
+            name: codeserver-cm
+        - secretRef:
+            name: codeserver-secret
+        
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: codeserver-svc
+  namespace: codeserver
+  labels:
+    app: codeserver
+    name: codeserver-svc
+spec:
+  type: LoadBalancer
+  selector:
+    app: codeserver
+    name: codeserver-pod
+  ports:
+  - port: 80
+    targetPort: codeserver-port
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: codeserver-ing
+  namespace: codeserver
+  labels:
+    app: codeserver
+    name: codeserver-ing
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: code.167.99.28.26.nip.io
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: codeserver-svc
+            port:
+              number: 80
